@@ -1,10 +1,10 @@
 import sys
+import os
 import spotipy
 import spotipy.util as util
 import urllib
 import time
 
-USERNAME = '1229546819?si=MER8uTCxSGueQIYzAewbbA' #your spotify username
 CLIENT_ID = 'd392a6588f7349ccba315cf0b665f228'#set at your developer account
 CLIENT_SECRET = '23c5b29752524b53bd62781a15e002e9' #set at your developer account
 REDIRECT_URI = 'http://localhost/' #set at your developer account, usually "http://localhost:8000"
@@ -47,7 +47,11 @@ def updateInfo(current_track):
     time.sleep((duration - progress) / 1000.0)
     updateInfo(sp.current_user_playing_track())
 
-token = util.prompt_for_user_token(USERNAME,SCOPE,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI)
+username = sys.argv[1]
+try:
+    token = util.prompt_for_user_token(username,SCOPE,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI)
+except (AttributeError, JSONDecodeError):
+    token = util.prompt_for_user_token(username,SCOPE,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI)
 
 if token:
     sp = spotipy.Spotify(auth=token)
@@ -76,6 +80,6 @@ if token:
     #updateInfo(current_track)
     updateInfoDumb(albumArt, songName)
 else:
-    print("Can't get token for", USERNAME)
+    print("Can't get token for", username)
 
 

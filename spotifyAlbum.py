@@ -5,36 +5,40 @@ import spotipy.util as util
 import urllib
 import time
 
-CLIENT_ID = 'd392a6588f7349ccba315cf0b665f228'#set at your developer account
-CLIENT_SECRET = '23c5b29752524b53bd62781a15e002e9' #set at your developer account
-REDIRECT_URI = 'http://localhost/' #set at your developer account, usually "http://localhost:8000"
-SCOPE = 'user-read-currently-playing' # or else
-# User Id: 1229546819?si=MER8uTCxSGueQIYzAewbbA
+CLIENT_ID = 'd392a6588f7349ccba315cf0b665f228'
+CLIENT_SECRET = '23c5b29752524b53bd62781a15e002e9' 
+REDIRECT_URI = 'http://localhost/' # set in dev acc.
+SCOPE = 'user-read-currently-playing' 
 
-def updateInfoDumb(albumArt, songName): 
-    # recursively call update info when time of song runs out... this is cool but not proper since if the user changes a song
-    # it will not account for that.. i could simply call for a check on the song every X seconds... just would prefer less API calls.
+
+def updateInfoSleepy(albumArt, songName): 
+
+    # Recursively call update info when difference found between current user track
+    # Noted as "Sleepy" due to sleeping before making calls
+    # Inefficient and calls API too often. Set to 10 second sleep times.
+
     current_track = sp.current_user_playing_track()
-    albumArt = current_track['item']['album']['images'][0]['url']
-    songName = current_track['item']['name']
-    artist = current_track['item']['artists'][0]['name'] # only grab first artist for this project ..
-    
-    secondName = songName
-    while secondName is songName:
-        time.sleep(5)
-        second_track = sp.current_user_playing_track()
-        secondName = second_track['item']['name']
-        albumArt = second_track['item']['album']['images'][0]['url']
-        artist = second_track['item']['artists'][0]['name']
-    
-    urllib.urlretrieve(albumArt, "album.jpg")
+    if current_track is not None:
+        albumArt = current_track['item']['album']['images'][0]['url']
+        songName = current_track['item']['name']
+        artist = current_track['item']['artists'][0]['name'] # only grab first artist for this project ..
+        
+        secondName = songName
+        while secondName is songName:
+            time.sleep(10)
+            second_track = sp.current_user_playing_track()
+            secondName = second_track['item']['name']
+            albumArt = second_track['item']['album']['images'][0]['url']
+            artist = second_track['item']['artists'][0]['name']
+        
+        urllib.urlretrieve(albumArt, "album.jpg")
 
-    print str(secondName) + ' by ' + str(artist)
-    updateInfoDumb(albumArt, secondName)
+        print str(secondName) + ' by ' + str(artist)
+        updateInfoSleepy(albumArt, secondName)
 
 def updateInfo(current_track): 
-    # recursively call update info when time of song runs out... this is cool but not proper since if the user changes a song
-    # it will not account for that.. i could simply call for a check on the song every X seconds... just would prefer less API calls.
+    # Recursively call update info when time of song runs out... this is cool but not proper since if the user changes a song
+    # It will not account for that
 
     progress = current_track['progress_ms']
     duration = duration = current_track['item']['duration_ms']
@@ -47,7 +51,9 @@ def updateInfo(current_track):
     time.sleep((duration - progress) / 1000.0)
     updateInfo(sp.current_user_playing_track())
 
-username = sys.argv[1]
+
+username = sys.argv[1] # Username currently passed in as command line arg.. will have to come up with better way of retrieving
+
 try:
     token = util.prompt_for_user_token(username,SCOPE,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI)
 except (AttributeError, JSONDecodeError):
@@ -60,6 +66,7 @@ if token:
     songName = ''
     if current_track is not None:
         if current_track['is_playing'] is not None:
+            
             albumArt = current_track['item']['album']['images'][0]['url']
             songName = current_track['item']['name']
             artist = current_track['item']['artists'][0]['name'] # only grab first artist for this project ..
@@ -78,7 +85,7 @@ if token:
         print 'Spotify is not running.'
 
     #updateInfo(current_track)
-    updateInfoDumb(albumArt, songName)
+    updateInfoSleepy(albumArt, songName) # Recursive function call starts here..
 else:
     print("Can't get token for", username)
 

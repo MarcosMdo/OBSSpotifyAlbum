@@ -10,9 +10,7 @@ CLIENT_SECRET = '23c5b29752524b53bd62781a15e002e9'
 REDIRECT_URI = 'http://localhost/' # set in dev acc.
 SCOPE = 'user-read-currently-playing' 
 
-
 def updateInfoSleepy(albumArt, songName): 
-
     # Recursively call update info when difference found between current user track
     # Noted as "Sleepy" due to sleeping before making calls
     # Inefficient and calls API too often. Set to 10 second sleep times.
@@ -27,13 +25,19 @@ def updateInfoSleepy(albumArt, songName):
         while secondName is songName:
             time.sleep(10)
             second_track = sp.current_user_playing_track()
-            secondName = second_track['item']['name']
-            albumArt = second_track['item']['album']['images'][0]['url']
-            artist = second_track['item']['artists'][0]['name']
+            if second_track is not None:
+                secondName = second_track['item']['name']
+                albumArt = second_track['item']['album']['images'][0]['url']
+                artist = second_track['item']['artists'][0]['name']
+            else:
+                break
         
         urllib.urlretrieve(albumArt, "album.jpg")
 
-        print str(secondName) + ' by ' + str(artist)
+        track = open("track.txt", "w+")
+        track.write(str(songName) + ' - ' + str(artist))
+        track.close()
+
         updateInfoSleepy(albumArt, secondName)
 
 def updateInfo(current_track): 
@@ -50,7 +54,6 @@ def updateInfo(current_track):
     print str(songName) + ' by ' + str(artist)
     time.sleep((duration - progress) / 1000.0)
     updateInfo(sp.current_user_playing_track())
-
 
 username = sys.argv[1] # Username currently passed in as command line arg.. will have to come up with better way of retrieving
 
@@ -78,6 +81,10 @@ if token:
             print str(songName) + ' by ' + str(artist)
 
             urllib.urlretrieve(albumArt, "album.jpg")
+            
+            track = open("track.txt", "w+")
+            track.write(str(songName) + ' - ' + str(artist))
+            track.close()
 
         else:
             print 'No song is playing.'

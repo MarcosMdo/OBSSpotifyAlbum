@@ -23,12 +23,13 @@ def updateInfoSleepy(albumArt, songName):
         
         secondName = songName
         while secondName is songName:
-            time.sleep(10)
+            time.sleep(5)
             second_track = sp.current_user_playing_track()
             if second_track is not None:
                 secondName = second_track['item']['name']
                 albumArt = second_track['item']['album']['images'][0]['url']
                 artist = second_track['item']['artists'][0]['name']
+                songName = second_track['item']['name']
             else:
                 break
         

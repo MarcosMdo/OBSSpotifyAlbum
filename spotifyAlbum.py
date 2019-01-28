@@ -23,21 +23,21 @@ def updateInfoSleepy(albumArt, songName):
         
         secondName = songName
         while secondName is songName:
-            time.sleep(5)
+            time.sleep(10)
             second_track = sp.current_user_playing_track()
             if second_track is not None:
                 secondName = second_track['item']['name']
                 albumArt = second_track['item']['album']['images'][0]['url']
                 artist = second_track['item']['artists'][0]['name']
                 songName = second_track['item']['name']
+
+                urllib.urlretrieve(albumArt, "album.jpg")
+
+                track = open("track.txt", "w+")
+                track.write(str(songName) + ' - ' + str(artist))
+                track.close()
             else:
                 break
-        
-        urllib.urlretrieve(albumArt, "album.jpg")
-
-        track = open("track.txt", "w+")
-        track.write(str(songName) + ' - ' + str(artist))
-        track.close()
 
         updateInfoSleepy(albumArt, secondName)
 
@@ -58,10 +58,7 @@ def updateInfo(current_track):
 
 username = sys.argv[1] # Username currently passed in as command line arg.. will have to come up with better way of retrieving
 
-try:
-    token = util.prompt_for_user_token(username,SCOPE,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI)
-except (AttributeError, JSONDecodeError):
-    token = util.prompt_for_user_token(username,SCOPE,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI)
+token = util.prompt_for_user_token(username,SCOPE,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI)
 
 if token:
     sp = spotipy.Spotify(auth=token)

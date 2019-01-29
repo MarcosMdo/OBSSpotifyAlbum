@@ -7,9 +7,12 @@ To use this python script you must first know your Spotify User ID. To find this
 
 Currently this is implemented as a python script, so python is required as well as spotipy 2.4.1.
 
+To download Spotipy for Python3, 
+`pip3 install git+https://github.com/plamere/spotipy.git --upgrade`
+
 To run, first have Spotify playing. Once Spotify is running, run the script as follows:
 
-`python spotifyAlbum.py <user ID>`
+`python3 spotifyAlbum.py <user ID>`
   
  Once it runs, an internet browser will prompt for your authorization of your user account. After accepting, copy the web address to the command line and press enter. The program will now begin running.
  

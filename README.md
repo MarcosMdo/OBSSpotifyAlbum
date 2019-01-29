@@ -4,8 +4,9 @@ Implemented using Spotipy python library.
 
 ## Requirements
 
-To run this python script, Python3, Spotipy and a Spotify Account are required.
-To install the Spotipy library, run this command:
+To run this python script, Python3, Spotipy and a Spotify Account are required. 
+To install the Spotipy library, run this command: 
+
 `pip3 install git+https://github.com/plamere/spotipy.git --upgrade`
 
 

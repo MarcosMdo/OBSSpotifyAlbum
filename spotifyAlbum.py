@@ -43,7 +43,7 @@ def updateInfoSleepy(albumArt, songName, sp):
 
         updateInfoSleepy(albumArt, secondName, sp)
 
-def updateInfo(current_track): 
+def updateInfo(current_track, sp): 
     # Recursively call update info when time of song runs out... this is cool but not proper since if the user changes a song
     # It will not account for that
 
@@ -52,15 +52,16 @@ def updateInfo(current_track):
     albumArt = current_track['item']['album']['images'][0]['url']
     songName = current_track['item']['name']
     artist = current_track['item']['artists'][0]['name'] # only grab first artist for this project ..
-    #urllib.urlretrieve(albumArt, "album.jpg")
+    
+    urllib.request.urlretrieve(albumArt, "album.jpg")
 
     print(str(songName) + ' by ' + str(artist))
     time.sleep((duration - progress) / 1000.0)
-    updateInfo(sp.current_user_playing_track())
+    updateInfo(sp.current_user_playing_track(), sp)
 
 def main():
     username = sys.argv[1] # Username currently passed in as command line arg.. will have to come up with better way of retrieving
-    token = util.prompt_for_user_token(username,SCOPE,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,redirect_uri=REDIRECT_URI)
+    token = util.prompt_for_user_token(username, SCOPE, client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI)
 
     if token:
         sp = spotipy.Spotify(auth=token)
@@ -70,7 +71,6 @@ def main():
 
         if current_track is not None:
             if current_track['is_playing'] is not None:
-                
                 albumArt = current_track['item']['album']['images'][0]['url']
                 songName = current_track['item']['name']
                 artist = current_track['item']['artists'][0]['name'] # only grab first artist for this project ..
@@ -88,7 +88,7 @@ def main():
         else:
             print('Spotify is not running.')
 
-        # updateInfo(current_track)
+        # updateInfo(current_track, sp)
         updateInfoSleepy(albumArt, songName, sp) # Recursive function call starts here..
     else:
         print("Can't get token for", username)

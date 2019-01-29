@@ -2,7 +2,7 @@ import sys
 import os
 import spotipy
 import spotipy.util as util
-import urllib
+import urllib.request
 import time
 
 CLIENT_ID = 'd392a6588f7349ccba315cf0b665f228'
@@ -23,15 +23,20 @@ def updateInfoSleepy(albumArt, songName):
         
         secondName = songName
         while secondName is songName:
+            
             time.sleep(10)
             second_track = sp.current_user_playing_track()
-            if second_track is not None:
-                secondName = second_track['item']['name']
+            secondName = second_track['item']['name']
+
+            if second_track is not None and secondName is not songName:
+                
                 albumArt = second_track['item']['album']['images'][0]['url']
                 artist = second_track['item']['artists'][0]['name']
                 songName = second_track['item']['name']
+                
+                print(str(songName) + ' by ' + str(artist))
 
-                urllib.urlretrieve(albumArt, "album.jpg")
+                urllib.request.urlretrieve(albumArt, "album.jpg")
 
                 track = open("track.txt", "w+")
                 track.write(str(songName) + ' - ' + str(artist))
@@ -50,9 +55,9 @@ def updateInfo(current_track):
     albumArt = current_track['item']['album']['images'][0]['url']
     songName = current_track['item']['name']
     artist = current_track['item']['artists'][0]['name'] # only grab first artist for this project ..
-    urllib.urlretrieve(albumArt, "album.jpg")
+    #urllib.urlretrieve(albumArt, "album.jpg")
 
-    print str(songName) + ' by ' + str(artist)
+    print(str(songName) + ' by ' + str(artist))
     time.sleep((duration - progress) / 1000.0)
     updateInfo(sp.current_user_playing_track())
 
@@ -76,18 +81,18 @@ if token:
             progress = current_track['progress_ms']
             timestamp = current_track['timestamp']
 
-            print str(songName) + ' by ' + str(artist)
+            print(str(songName) + ' by ' + str(artist))
 
-            urllib.urlretrieve(albumArt, "album.jpg")
-            
+            urllib.request.urlretrieve(albumArt, "album.jpg")
+
             track = open("track.txt", "w+")
             track.write(str(songName) + ' - ' + str(artist))
             track.close()
 
         else:
-            print 'No song is playing.'
+            print('No song is playing.')
     else:
-        print 'Spotify is not running.'
+        print('Spotify is not running.')
 
     #updateInfo(current_track)
     updateInfoSleepy(albumArt, songName) # Recursive function call starts here..

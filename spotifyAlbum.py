@@ -10,38 +10,40 @@ CLIENT_SECRET = '23c5b29752524b53bd62781a15e002e9'
 REDIRECT_URI = 'http://localhost/' # set in dev acc.
 SCOPE = 'user-read-currently-playing' 
 
-def updateInfoSleepy(albumArt, songName, sp): 
+def updateInfoSleepy(current_track, sp): 
     # Recursively call update info when difference found between current user track
     # Noted as "Sleepy" due to sleeping before making calls
     # Inefficient and calls API too often. Set to 10 second sleep times.
 
-    current_track = sp.current_user_playing_track()
     if current_track is not None:
-        albumArt = current_track['item']['album']['images'][0]['url']
-        songName = current_track['item']['name']
-        artist = current_track['item']['artists'][0]['name'] # only grab first artist for this project ..
-        secondName = songName
-
-        while secondName is songName:
+        #current_album_art = current_track['item']['album']['images'][0]['url']
+        current_name = current_track['item']['name']
+        #current_artist = current_track['item']['artists'][0]['name'] # only grab first artist for this project ..
+        current_id = current_track['item']['id']
+        new_name = current_name
+        new_id = current_id
+        while new_id is current_id:
             time.sleep(20)
             second_track = sp.current_user_playing_track()
-            secondName = second_track['item']['name']
+            new_name = second_track['item']['name']
 
             if second_track is not None:
-                albumArt = second_track['item']['album']['images'][0]['url']
-                artist = second_track['item']['artists'][0]['name']
-                songName = second_track['item']['name']
-                
-                print(str(songName) + ' by ' + str(artist))
+                new_album_art = second_track['item']['album']['images'][0]['url']
+                new_artist = second_track['item']['artists'][0]['name']
+                new_name = second_track['item']['name']
+                new_id = second_track['item']['id']
 
-                urllib.request.urlretrieve(albumArt, "album.jpg")
-                track = open("track.txt", "w+")
-                track.write(str(songName) + ' - ' + str(artist))
-                track.close()
+                if new_id != current_id:
+                    track = open("track.txt", "w+")
+                    
+                    print(str(new_name) + ' by ' + str(new_artist))
+                    urllib.request.urlretrieve(new_album_art, "album.jpg")
+                    track.write(str(new_name) + ' - ' + str(new_artist))
+                    track.close()
             else:
                 break
 
-        updateInfoSleepy(albumArt, secondName, sp)
+        updateInfoSleepy(second_track, sp)
 
 def updateInfo(current_track, sp): 
     # Recursively call update info when time of song runs out... this is cool but not proper since if the user changes a song
@@ -89,7 +91,7 @@ def main():
             print('Spotify is not running.')
 
         # updateInfo(current_track, sp)
-        updateInfoSleepy(albumArt, songName, sp) # Recursive function call starts here..
+        updateInfoSleepy(current_track, sp) # Recursive function call starts here..
     else:
         print("Can't get token for", username)
 

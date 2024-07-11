@@ -5,8 +5,8 @@ import spotipy.util as util
 import urllib.request
 import time
 
-CLIENT_ID = 'd392a6588f7349ccba315cf0b665f228'
-CLIENT_SECRET = '23c5b29752524b53bd62781a15e002e9' 
+CLIENT_ID = 'REDACT'
+CLIENT_SECRET = 'REDACT' 
 REDIRECT_URI = 'http://localhost/' # set in dev acc.
 SCOPE = 'user-read-currently-playing' 
 
